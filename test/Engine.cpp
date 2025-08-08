@@ -14,11 +14,13 @@ void Engine::Init() {
     rlImGuiSetup(true);
 }
 
-
 void Engine::Run() {
     while (!WindowShouldClose()) {
         BeginDrawing();
         ClearBackground(GRAY);
+
+        grid.Update();
+        grid.Draw();
 
         rlImGuiBegin();
 
@@ -31,9 +33,6 @@ void Engine::Run() {
 
         ImGui::End();
         rlImGuiEnd();
-
-        grid.Update();
-        grid.Draw();
 
         EndDrawing();
     }

@@ -1,10 +1,13 @@
 #pragma once
 #include <vector>
 #include <string>
+#include <cmath>
+#include <iostream>
 
 #include "raylib.h"
 #include "imgui.h"
 #include "rlImGui.h"
+#include "raymath.h"
 
 class Grid {
 public:
@@ -34,4 +37,8 @@ private:
 
     std::vector<std::string> tileSize = { "16x16", "32x32", "64x64" };
     int selectedTileSizeIndex = 0; // 0 - 16x16, 1 - 32x32, 2 - 64x64
+
+    RenderTexture2D gridTexture;
+    bool needsRedraw = true;
+    bool initialized = false;
 };
