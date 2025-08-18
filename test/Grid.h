@@ -28,12 +28,15 @@ public:
         }
     }
 
-private:
-    int rows;
-    int cols;
+    Camera2D GetCamera() const {
+        return GridCamera;
+    }
 
-    Camera2D camera = { 0 };
+private:
+    Camera2D GridCamera = { 0 };
     float zoom = 1.0f;
+
+    Color highlightColor = { 255, 255, 0, 80 };
 
     std::vector<std::string> tileSize = { "16x16", "32x32", "64x64" };
     int selectedTileSizeIndex = 0; // 0 - 16x16, 1 - 32x32, 2 - 64x64
