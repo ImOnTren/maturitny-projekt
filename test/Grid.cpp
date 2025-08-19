@@ -13,6 +13,7 @@ Grid::~Grid() {
 
 void Grid::RenderSizeAvailability() {
     for (int i = 0; i < tileSize.size(); i++) {
+        ImGui::SameLine();
         if (ImGui::RadioButton(tileSize[i].c_str(), selectedTileSizeIndex == i)) {
             selectedTileSizeIndex = i;
             needsRedraw = true;
@@ -31,7 +32,7 @@ void Grid::Update() {
         initialized = true;
         needsRedraw = true;
     }
-
+    //zooming with mouse wheel
     float wheel = GetMouseWheelMove();
     if (wheel != 0) {
         Vector2 mouseScreen = GetMousePosition();
@@ -48,7 +49,7 @@ void Grid::Update() {
 
         needsRedraw = true;
     }
-
+    // movement with left mouse button
     if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
         Vector2 delta = GetMouseDelta();
         delta = Vector2Scale(delta, -1.0f / GridCamera.zoom);
@@ -82,13 +83,14 @@ void Grid::Draw() {
 
         if (startX < 0) startX = 0;
         if (startY < 0) startY = 0;
-
+        //==================
+        // Draw grid lines
         for (int y = startY; y <= endY; y++) {
             for (int x = startX; x <= endX; x++) {
                 DrawRectangleLines(x * tileSize, y * tileSize, tileSize, tileSize, DARKGRAY);
             }
         }
-
+        //==================
         EndMode2D();
         EndTextureMode();
 

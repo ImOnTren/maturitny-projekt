@@ -13,6 +13,8 @@
 
 class Engine {
 public:
+    enum class Mode { EDIT, PLAY };
+
     Engine();
     ~Engine();
 
@@ -22,7 +24,10 @@ public:
 
 private:
     Grid grid;
-    std::unique_ptr<PlayerEntity> player; // Using smart pointer for better memory management
+    std::unique_ptr<PlayerEntity> player;
+    Mode currentMode = Mode::EDIT;
 
     void HandlePlayerPlacement();
+    void HandlePlayerRemoval();
+    void RenderModeControls();
 };

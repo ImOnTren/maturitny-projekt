@@ -23,6 +23,7 @@ bool PlayerEntity::LoadPlayerTexture(const char* path) {
 
 void PlayerEntity::Update(float deltaTime) {
     // Movement: step one cell at a time
+    // TODO: implement smooth movement
     if (IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_D)) cellX++;
     if (IsKeyPressed(KEY_LEFT)  || IsKeyPressed(KEY_A)) cellX--;
     if (IsKeyPressed(KEY_DOWN)  || IsKeyPressed(KEY_S)) cellY++;
@@ -37,12 +38,11 @@ void PlayerEntity::Update(float deltaTime) {
 
 void PlayerEntity::Draw() {
     BeginMode2D(grid.GetCamera());
-    //DrawRectangleV(position, size, BLUE);
     if (textureLoaded) {
         DrawTextureV(playerTexture, position, WHITE);
     }
     else {
-        DrawRectangleV(position, size, BLUE); // Fallback if texture not loaded
+        DrawRectangleV(position, size, BLUE);
     }
     EndMode2D();
 }
