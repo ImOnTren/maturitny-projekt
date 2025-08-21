@@ -41,9 +41,11 @@ void Engine::HandlePlayerPlacement() {
         
         if (!player) {
             player = std::make_unique<PlayerEntity>(grid, gridX, gridY);
-        } else {
-            player->PlaceOnGrid(gridX, gridY);
         }
+        // If player already exists, update its position (Not aure if this is needed)
+        //else {
+        //    player->PlaceOnGrid(gridX, gridY);
+        //}
     }
 }
 
