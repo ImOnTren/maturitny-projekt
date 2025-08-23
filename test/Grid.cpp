@@ -32,7 +32,7 @@ void Grid::Update() {
         initialized = true;
         needsRedraw = true;
     }
-    //zooming with mouse wheel
+    // zooming with mouse wheel
     float wheel = GetMouseWheelMove();
     if (wheel != 0) {
         Vector2 mouseScreen = GetMousePosition();

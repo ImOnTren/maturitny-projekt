@@ -16,7 +16,6 @@ public:
 
     void Update();
     void Draw();
-
     void RenderSizeAvailability();
 
     int GetTileSize() const {
@@ -39,7 +38,7 @@ private:
     Color highlightColor = { 255, 255, 0, 80 };
 
     std::vector<std::string> tileSize = { "16x16", "32x32", "64x64" };
-    int selectedTileSizeIndex = 0; // 0 - 16x16, 1 - 32x32, 2 - 64x64
+    int selectedTileSizeIndex = 0;
 
     RenderTexture2D gridTexture;
     bool needsRedraw = true;
