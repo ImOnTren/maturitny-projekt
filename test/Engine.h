@@ -11,11 +11,14 @@
 #include "rlImGui.h"
 #include "Grid.h"
 #include "Entities/PlayerEntity.h"
+#include "Entities/PlayerManager.h"
+#include "Entities/EnemyEntity.h"
+#include "Entities/EnemyManager.h"
 
 class Engine {
 public:
     enum class Mode { EDIT, PLAY };
-    enum class ToolState { NONE, PLACING, REMOVING, CAMERA_SELECTION };
+    enum class ToolState { NONE, PLACING_PLAYER, PLACING_ENEMY,  REMOVING_PLAYER, REMOVING_ENEMY, CAMERA_SELECTION };
 
     Engine();
     ~Engine();
@@ -26,6 +29,9 @@ public:
 
 private:
     Grid grid;
+    PlayerManager playerManager;
+    EnemyManager enemyManager;
+    std::vector<std::unique_ptr<EnemyEntity>> enemies;
     std::unique_ptr<PlayerEntity> player;
     Mode currentMode = Mode::EDIT;
     ToolState currentTool = ToolState::NONE;
@@ -34,16 +40,26 @@ private:
     Vector2 selectionStart = {0, 0};
     Vector2 selectionEnd = {0, 0};
     Rectangle selectedArea = {0, 0, 0, 0};
-    Camera2D playerCamera = {0};
+    Camera2D playerCamera;
     bool showCameraConfirmation = false;
 
-    void HandleEditModeInput();
+    // Player Input Handling
     void HandlePlayerPlacement();
     void HandlePlayerRemoval();
+    // =======================================
+    //Player Camera Selection Handling
     void HandlePlayerCameraSelection();
-    void RenderModeControls();
-    void RenderPlayerCameraSelectionUI();
     void ConfirmPlayerCameraSelection();
     void CancelPlayerCameraSelection();
+    // Enemy Input Handling
+    void HandleEnemyPlacement();
+    void HandleEnemyRemoval();
+    // =======================================
+    // UI Rendering
+    void HandleEditModeInput();
+    void RenderModeControls();
+    void RenderPlayerCameraSelectionUI();
+    // =======================================
     bool IsMouseOverUI() const;
+    void ResetTool();
 };

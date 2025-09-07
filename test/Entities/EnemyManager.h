@@ -1,8 +1,18 @@
-//
-// Created by smart on 31. 8. 2025.
-//
+// EnemyManager.h
+#pragma once
+#include <memory>
+#include <vector>
+#include "raylib.h"
 
-#ifndef MATURITNY_PROJEKT_ENEMYMANAGER_H
-#define MATURITNY_PROJEKT_ENEMYMANAGER_H
+class Grid;
+class EnemyEntity;
 
-#endif //MATURITNY_PROJEKT_ENEMYMANAGER_H
+class EnemyManager {
+public:
+    EnemyManager(Grid& grid); // Remove camera parameter
+    ~EnemyManager() = default;
+    bool TryPlaceEnemy(Vector2 mouseScreen, Camera2D camera, std::vector<std::unique_ptr<EnemyEntity>>& enemies);
+    bool TryRemoveEnemy(Vector2 mouseScreen, Camera2D camera, std::vector<std::unique_ptr<EnemyEntity>>& enemies);
+private:
+    Grid& grid;
+};
