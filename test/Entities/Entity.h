@@ -5,17 +5,17 @@
 class Entity {
 protected:
     Vector2 position;       // World position
-    Vector2 velocity;       // Movement per update
-    Vector2 size;           // Width & height
-    float rotation;         // For rotation-based movement/animation
-    bool active;            // Is entity alive/active in the game world
+    Vector2 velocity;              // Movement per update
+    Vector2 size;                  // Width & height
+    float rotation;                // For rotation-based movement/animation
+    bool active;                   // Is entity alive/active in the game world
 public:
     Entity(Vector2 pos = {0,0}, Vector2 size = {16,16});
     virtual ~Entity() = default;
 
-    virtual void Update(float deltaTime);  // Logic per frame
-    virtual void Draw();                   // Rendering
-    virtual void OnCollision(Entity* other); // Collision handling
+    virtual void Update(float deltaTime);
+    virtual void Draw();
+    virtual void OnCollision(Entity* other);
 
     Vector2 GetPosition() const;
     void SetPosition(Vector2 pos);

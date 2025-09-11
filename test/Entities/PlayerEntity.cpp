@@ -37,14 +37,12 @@ void PlayerEntity::Update(float deltaTime) {
 }
 
 void PlayerEntity::Draw() {
-    BeginMode2D(grid.GetCamera());
     if (textureLoaded) {
         DrawTextureV(playerTexture, position, WHITE);
     }
     else {
         DrawRectangleV(position, size, BLUE);
     }
-    EndMode2D();
 }
 
 void PlayerEntity::PlaceOnGrid(int gridX, int gridY) {
@@ -53,4 +51,7 @@ void PlayerEntity::PlaceOnGrid(int gridX, int gridY) {
     int tileSize = grid.GetTileSize();
     position = { static_cast<float>(cellX * tileSize), static_cast<float>(cellY * tileSize) };
     size = { static_cast<float>(tileSize), static_cast<float>(tileSize) };
+
+    // Update the camera to look at the player
+    //playerCameraRef.target = position;
 }
