@@ -2,20 +2,71 @@
 
 using namespace std;
 
-Engine::Engine() : playerManager(grid), enemyManager(grid) { // Remove camera parameters
+Engine::Engine() : playerManager(grid), enemyManager(grid) {
     playerCamera.offset = {0, 0};
     playerCamera.target = {0, 0};
     playerCamera.rotation = 0.0f;
     playerCamera.zoom = 1.0f;
+    playModeTexture = {0}; // Initialize
+    playModeWindowOpen = false;
 }
 
 Engine::~Engine() { }
 
 void Engine::Init() {
-    InitWindow(800, 400, "Game Engine");
+    InitWindow(800, 400, "Game Engine - Edit Mode");
     SetWindowState(FLAG_WINDOW_RESIZABLE | FLAG_WINDOW_MAXIMIZED);
     SetTargetFPS(60);
     rlImGuiSetup(true);
+
+    // Initialize play mode render texture
+    playModeTexture = LoadRenderTexture(800, 600);
+}
+
+void Engine::RenderPlayModeWindow() {
+    if (!playModeWindowOpen) return;
+
+    ImGui::SetNextWindowSize(ImVec2(800, 600), ImGuiCond_FirstUseEver);
+    if (ImGui::Begin("Play Mode", &playModeWindowOpen, ImGuiWindowFlags_NoScrollbar)) {
+        // Draw the render texture
+        ImVec2 contentSize = ImGui::GetContentRegionAvail();
+
+        // Calculate the correct UV coordinates to fix the inversion
+        ImVec2 uv0 = ImVec2(0, 1);  // Top-left UV coordinate (flipped)
+        ImVec2 uv1 = ImVec2(1, 0);  // Bottom-right UV coordinate (flipped)
+
+        // Maintain aspect ratio
+        float textureAspect = (float)playModeTexture.texture.width / (float)playModeTexture.texture.height;
+        float windowAspect = contentSize.x / contentSize.y;
+
+        ImVec2 displaySize;
+        if (textureAspect > windowAspect) {
+            // Width is the limiting factor
+            displaySize.x = contentSize.x;
+            displaySize.y = contentSize.x / textureAspect;
+        } else {
+            // Height is the limiting factor
+            displaySize.y = contentSize.y;
+            displaySize.x = contentSize.y * textureAspect;
+        }
+
+        // Center the image
+        ImVec2 pos = ImGui::GetCursorPos();
+        pos.x += (contentSize.x - displaySize.x) * 0.5f;
+        pos.y += (contentSize.y - displaySize.y) * 0.5f;
+        ImGui::SetCursorPos(pos);
+
+        // Display the texture with correct UV coordinates to fix inversion
+        ImGui::Image(
+            (ImTextureID)(uintptr_t)playModeTexture.texture.id,
+            displaySize,
+            uv0,  // Top-left UV (flipped)
+            uv1,  // Bottom-right UV (flipped)
+            ImVec4(1, 1, 1, 1),  // Tint color
+            ImVec4(0, 0, 0, 0)   // Border color
+        );
+    }
+    ImGui::End();
 }
 
 bool Engine::IsMouseOverUI() const {
@@ -93,21 +144,25 @@ void Engine::HandlePlayerCameraSelection() {
 
 void Engine::ConfirmPlayerCameraSelection() {
     // Set up the player camera to focus on the selected area
+    // The target should be the center of the selected area
     playerCamera.target = {
         selectedArea.x + selectedArea.width / 2,
         selectedArea.y + selectedArea.height / 2
     };
 
-    // Set a reasonable zoom level based on the selected area
-    float zoomX = (static_cast<float>(GetScreenWidth()) * 0.75f) / selectedArea.width;
-    float zoomY = (static_cast<float>(GetScreenHeight())) / selectedArea.height;
+    // Calculate zoom based on the selected area and render texture size
+    float textureWidth = (float)playModeTexture.texture.width;
+    float textureHeight = (float)playModeTexture.texture.height;
+
+    float zoomX = textureWidth / selectedArea.width;
+    float zoomY = textureHeight / selectedArea.height;
     playerCamera.zoom = fminf(zoomX, zoomY);
 
-    // Set the offset to the center of the screen
-    playerCamera.offset = {GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f};
+    // Set the offset to the center of the render texture
+    playerCamera.offset = {textureWidth / 2.0f, textureHeight / 2.0f};
 
-    TraceLog(LOG_INFO, "Player camera set to area: (%.0f, %.0f, %.0f, %.0f)",
-             selectedArea.x, selectedArea.y, selectedArea.width, selectedArea.height);
+    TraceLog(LOG_INFO, "Player camera set to area: (%.0f, %.0f, %.0f, %.0f) with zoom: %.2f",
+             selectedArea.x, selectedArea.y, selectedArea.width, selectedArea.height, playerCamera.zoom);
 }
 
 void Engine::CancelPlayerCameraSelection() {
@@ -152,12 +207,14 @@ void Engine::RenderModeControls() {
 
     if (ImGui::RadioButton("Edit Mode", currentMode == Mode::EDIT)) {
         currentMode = Mode::EDIT;
-        ResetTool(); // Reset tool when switching modes
+        playModeWindowOpen = false; // Close play window when switching to edit
+        ResetTool();
     }
     ImGui::SameLine();
     if (ImGui::RadioButton("Play Mode", currentMode == Mode::PLAY)) {
         currentMode = Mode::PLAY;
-        ResetTool(); // Reset tool when switching modes
+        playModeWindowOpen = true; // Open play window when switching to play
+        ResetTool();
     }
 
     if (currentMode == Mode::EDIT) {
@@ -253,6 +310,15 @@ void Engine::Run() {
         // Handle input based on mode and tool
         HandleEditModeInput();
 
+        // Update play mode if window is open
+        if (playModeWindowOpen && player) {
+            // Update player and enemies for play mode
+            player->Update(GetFrameTime());
+            for (auto& enemy : enemies) {
+                enemy->Update(GetFrameTime(), player.get());
+            }
+        }
+
         BeginDrawing();
         ClearBackground(GRAY);
 
@@ -267,32 +333,38 @@ void Engine::Run() {
             EndMode2D();
         }
 
-        if (currentMode == Mode::EDIT) {
-            // In edit mode, draw everything with the grid camera
-            BeginMode2D(grid.GetCamera());
+        // In edit mode, draw everything with the grid camera
+        BeginMode2D(grid.GetCamera());
+        if (player) {
+            player->Draw();
+        }
+        for (auto& enemy : enemies) {
+            enemy->Draw();
+        }
+        EndMode2D();
+
+        // Render play mode to texture if window is open
+        if (playModeWindowOpen && player) {
+            BeginTextureMode(playModeTexture);
+            ClearBackground(BLACK);
+
+            BeginMode2D(playerCamera);
+
+            DrawRectangleRec(
+                Rectangle{selectedArea.x, selectedArea.y, selectedArea.width, selectedArea.height},
+                Fade(DARKGRAY, 0.5f)
+            );
+
+            // Draw entities
             if (player) {
                 player->Draw();
             }
             for (auto& enemy : enemies) {
                 enemy->Draw();
             }
-            EndMode2D();
-        }
-        if (currentMode == Mode::PLAY) {
-            // In play mode, draw everything with the player camera
-            if (player) {
-                player->Update(GetFrameTime());
-                for (auto& enemy : enemies) {
-                    enemy->Update(GetFrameTime(), player.get());
-                }
 
-                BeginMode2D(playerCamera);
-                player->Draw();
-                for (auto& enemy : enemies) {
-                    enemy->Draw();
-                }
-                EndMode2D();
-            }
+            EndMode2D();
+            EndTextureMode();
         }
 
         rlImGuiBegin();
@@ -307,6 +379,9 @@ void Engine::Run() {
         RenderPlayerCameraSelectionUI();
 
         ImGui::End();
+
+        RenderPlayModeWindow();
+
         rlImGuiEnd();
 
         EndDrawing();
@@ -314,6 +389,9 @@ void Engine::Run() {
 }
 
 void Engine::Shutdown() {
+    if (playModeTexture.id != 0) {
+        UnloadRenderTexture(playModeTexture);
+    }
     CloseWindow();
     rlImGuiShutdown();
 }

@@ -52,6 +52,4 @@ void PlayerEntity::PlaceOnGrid(int gridX, int gridY) {
     position = { static_cast<float>(cellX * tileSize), static_cast<float>(cellY * tileSize) };
     size = { static_cast<float>(tileSize), static_cast<float>(tileSize) };
 
-    // Update the camera to look at the player
-    //playerCameraRef.target = position;
 }

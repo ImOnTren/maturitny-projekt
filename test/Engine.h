@@ -36,12 +36,15 @@ private:
     Mode currentMode = Mode::EDIT;
     ToolState currentTool = ToolState::NONE;
 
+    RenderTexture2D playModeTexture;
+
     // Camera selection variables
     Vector2 selectionStart = {0, 0};
     Vector2 selectionEnd = {0, 0};
     Rectangle selectedArea = {0, 0, 0, 0};
     Camera2D playerCamera;
     bool showCameraConfirmation = false;
+    bool playModeWindowOpen = false;
 
     // Player Input Handling
     void HandlePlayerPlacement();
@@ -62,4 +65,5 @@ private:
     // =======================================
     bool IsMouseOverUI() const;
     void ResetTool();
+    void RenderPlayModeWindow();
 };
