@@ -20,7 +20,7 @@ bool PlayerManager::TryPlacePlayer(Vector2 mouseScreen, Camera2D camera, std::un
 }
 
 bool PlayerManager::TryRemovePlayer(Vector2 mouseScreen, Camera2D camera, std::unique_ptr<PlayerEntity>& player) {
-    if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT) && player) {
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && player) {
         Vector2 mouseWorld = GetScreenToWorld2D(mouseScreen, camera);
         int tileSize = grid.GetTileSize();
         int clickedGridX = static_cast<int>(mouseWorld.x / tileSize);

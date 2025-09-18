@@ -222,25 +222,25 @@ void Engine::RenderModeControls() {
         ImGui::Text("Edit Tools:");
 
         // Player placement/removal
-        bool playerPlacingActive = (currentTool == ToolState::PLACING_PLAYER);
-        if (ImGui::RadioButton("Place Player", playerPlacingActive)) {
-            currentTool = playerPlacingActive ? ToolState::NONE : ToolState::PLACING_PLAYER;
+        if (ImGui::Button("Place Player", ImVec2(120, 0))) {
+            currentTool = (currentTool == ToolState::PLACING_PLAYER) ?
+                ToolState::NONE : ToolState::PLACING_PLAYER;
         }
         ImGui::SameLine();
-        bool playerRemovingActive = (currentTool == ToolState::REMOVING_PLAYER);
-        if (ImGui::RadioButton("Remove Player", playerRemovingActive)) {
-            currentTool = playerRemovingActive ? ToolState::NONE : ToolState::REMOVING_PLAYER;
+        if (ImGui::Button("Remove Player", ImVec2(120, 0))) {
+            currentTool = (currentTool == ToolState::REMOVING_PLAYER) ?
+                ToolState::NONE : ToolState::REMOVING_PLAYER;
         }
         // =======================================
         // Enemy placement/removal
-        bool enemyPlacingActive = (currentTool == ToolState::PLACING_ENEMY);
-        if (ImGui::RadioButton("Place Enemy", enemyPlacingActive)) {
-            currentTool = enemyPlacingActive ? ToolState::NONE : ToolState::PLACING_ENEMY;
+        if (ImGui::Button("Place Enemy", ImVec2(120, 0))) {
+            currentTool = (currentTool == ToolState::PLACING_ENEMY) ?
+                ToolState::NONE : ToolState::PLACING_ENEMY;
         }
         ImGui::SameLine();
-        bool enemyRemovingActive = (currentTool == ToolState::REMOVING_ENEMY);
-        if (ImGui::RadioButton("Remove Enemy", enemyRemovingActive)) {
-            currentTool = enemyRemovingActive ? ToolState::NONE : ToolState::REMOVING_ENEMY;
+        if (ImGui::Button("Remove Enemy", ImVec2(120, 0))) {
+            currentTool = (currentTool == ToolState::REMOVING_ENEMY) ?
+                ToolState::NONE : ToolState::REMOVING_ENEMY;
         }
         // =======================================
         // Camera selection
@@ -267,6 +267,9 @@ void Engine::RenderModeControls() {
             case ToolState::REMOVING_ENEMY: ImGui::TextColored(ImVec4(0.8f, 0.2f, 0.2f, 1.0f), "Removing Enemy"); break;
             case ToolState::CAMERA_SELECTION: ImGui::TextColored(ImVec4(0.2f, 0.6f, 0.8f, 1.0f), "Selecting Camera Area"); break;
         }
+        if (ImGui::Button("Clear Tool", ImVec2(120, 0))) {
+            ResetTool();
+        }
     }
 }
 // =======================================
@@ -275,17 +278,13 @@ void Engine::RenderModeControls() {
 void Engine::HandlePlayerPlacement() {
     if (IsMouseOverUI()) return;
     Vector2 mouseScreen = GetMousePosition();
-    if (playerManager.TryPlacePlayer(mouseScreen, grid.GetCamera(), player)) {
-        ResetTool(); // Only reset if placement was successful
-    }
+    playerManager.TryPlacePlayer(mouseScreen, grid.GetCamera(), player);
 }
 
 void Engine::HandlePlayerRemoval() {
     if (IsMouseOverUI()) return;
     Vector2 mouseScreen = GetMousePosition();
-    if (playerManager.TryRemovePlayer(mouseScreen, grid.GetCamera(), player)) {
-        ResetTool(); // Only reset if removal was successful
-    }
+    playerManager.TryRemovePlayer(mouseScreen, grid.GetCamera(), player); // Only reset if removal was successful
 }
 // =======================================
 // =           Enemy Functions           =
@@ -293,16 +292,12 @@ void Engine::HandlePlayerRemoval() {
 void Engine::HandleEnemyPlacement() {
     if (IsMouseOverUI()) return;
     Vector2 mouseScreen = GetMousePosition();
-    if (enemyManager.TryPlaceEnemy(mouseScreen, grid.GetCamera(), enemies)) {
-        ResetTool(); // Only reset if placement was successful
-    }
+    enemyManager.TryPlaceEnemy(mouseScreen, grid.GetCamera(), enemies);
 }
 void Engine::HandleEnemyRemoval() {
     if (IsMouseOverUI()) return;
     Vector2 mouseScreen = GetMousePosition();
-    if (enemyManager.TryRemoveEnemy(mouseScreen, grid.GetCamera(), enemies)) {
-        ResetTool(); // Only reset if removal was successful
-    }
+    enemyManager.TryRemoveEnemy(mouseScreen, grid.GetCamera(), enemies);
 }
 // =======================================
 void Engine::Run() {

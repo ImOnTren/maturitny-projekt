@@ -24,7 +24,7 @@ bool EnemyManager::TryPlaceEnemy(Vector2 mouseScreen, Camera2D camera, std::vect
 }
 
 bool EnemyManager::TryRemoveEnemy(Vector2 mouseScreen, Camera2D camera, std::vector<std::unique_ptr<EnemyEntity>>& enemies) {
-    if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
         Vector2 mouseWorld = GetScreenToWorld2D(mouseScreen, camera);
         int tileSize = grid.GetTileSize();
         int clickedGridX = static_cast<int>(mouseWorld.x / tileSize);
